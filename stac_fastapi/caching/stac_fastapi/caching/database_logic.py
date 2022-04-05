@@ -69,10 +69,17 @@ class DatabaseLogic:
 
     """CORE LOGIC"""
 
-    # async def get_all_collections(self) -> List[Dict[str, Any]]:
-    #     """Database logic to retrieve a list of all collections."""
-    #     # https://github.com/stac-utils/stac-fastapi-elasticsearch/issues/65
-    #     # collections should be paginated, but at least return more than the default 10 for now
+    async def get_all_collections(self) -> List[Dict[str, Any]]:
+        """Database logic to retrieve a list of all collections."""
+        # https://github.com/stac-utils/stac-fastapi-elasticsearch/issues/65
+        # collections should be paginated, but at least return more than the default 10 for now
+        objects = await self.client.scan('collections').asObjects()
+        collections = []
+        for i in range(objects.count):
+            collection = json.loads(objects.objects[i].object)
+            collections.append(json.loads(collection["collection"]))
+
+        return collections
     #     collections = await self.client.search(index=COLLECTIONS_INDEX, size=1000)
     #     return (c["_source"] for c in collections["hits"]["hits"])
 
