@@ -14,8 +14,10 @@ services:
       - RELOAD=true
       - ENVIRONMENT=local
       - WEB_CONCURRENCY=10
+      - 38_PORT=9851
+      - 38_HOST=172.17.0.1
     ports:
-      - "8081:8080"
+      - "8083:8080"
     volumes:
       - ./stac_fastapi:/app/stac_fastapi
       - ./scripts:/app/scripts
