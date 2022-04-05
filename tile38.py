@@ -17,12 +17,21 @@ async def main():
     }
     await tile38.jset('user', 'Tom', 'user', json.dumps(user))
     # await tile38.jset('user', 901, 'name.first', 'Anderson')
-    response = await tile38.jget('user', 'Tom')
-    response = json.loads(response.value)
+    response = await tile38.get('user', 'Tom').asObject()
+
+    response = json.loads(response.object)
     user = json.loads(response["user"])
     print(user)
     print(user["dict"]["job"])
 
     print(type(user))
+    # print(response)
+
+    list = await tile38.scan('user').asObjects()
+    print(list)
+    print(list.count)
+    user = json.loads(list.objects[1].object)
+    print(json.loads(user["user"]))
+
 
 asyncio.run(main())
