@@ -1,15 +1,15 @@
 """FastAPI application."""
 from stac_fastapi.api.app import StacApi
 from stac_fastapi.api.models import create_get_request_model, create_post_request_model
-from stac_fastapi.elasticsearch.config import ElasticsearchSettings
-from stac_fastapi.elasticsearch.core import (
+from stac_fastapi.caching.config import Tile38Settings
+from stac_fastapi.caching.core import (
     BulkTransactionsClient,
     CoreClient,
     TransactionsClient,
 )
-from stac_fastapi.elasticsearch.extensions import QueryExtension
-from stac_fastapi.elasticsearch.indexes import IndexesClient
-from stac_fastapi.elasticsearch.session import Session
+from stac_fastapi.caching.extensions import QueryExtension
+from stac_fastapi.caching.indexes import IndexesClient
+from stac_fastapi.caching.session import Session
 from stac_fastapi.extensions.core import (  # FieldsExtension,
     ContextExtension,
     SortExtension,
@@ -18,7 +18,7 @@ from stac_fastapi.extensions.core import (  # FieldsExtension,
 )
 from stac_fastapi.extensions.third_party import BulkTransactionExtension
 
-settings = ElasticsearchSettings()
+settings = Tile38Settings()
 session = Session.create_from_settings(settings)
 
 extensions = [
@@ -45,7 +45,8 @@ app = api.app
 
 @app.on_event("startup")
 async def _startup_event():
-    await IndexesClient().create_indexes()
+    pass
+    # await IndexesClient().create_indexes()
 
 
 def run():
@@ -54,7 +55,7 @@ def run():
         import uvicorn
 
         uvicorn.run(
-            "stac_fastapi.elasticsearch.app:app",
+            "stac_fastapi.caching.app:app",
             host=settings.app_host,
             port=settings.app_port,
             log_level="info",
