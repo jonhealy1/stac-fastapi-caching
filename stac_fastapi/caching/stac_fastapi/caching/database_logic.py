@@ -288,41 +288,24 @@ class DatabaseLogic:
     async def create_item(self, item: Item, refresh: bool = False):
         """Database logic for creating one item."""
         # todo: check if collection exists, but cache
-        # try: 
-        #     await self.client.jget('collections', collection["id"])
-        #     raise ConflictError(f"Collection {collection['id']} already exists")
-        # except pyle38.errors.Tile38IdNotFoundError:
-        #     pass
+        try: 
+            await self.client.jget(item["collection"], item["id"])
+            raise ConflictError(f"Item {item['id']} in collection {item['collection']} already exists")
+        except pyle38.errors.Tile38IdNotFoundError:
+            pass
 
         await self.client.jset(item["collection"], item["id"], 'item', json.dumps(item))
-        # await self.client.jset('collections', collection["id"], 'collection', json.dumps(collection))
 
-    #     es_resp = await self.client.index(
-    #         index=ITEMS_INDEX,
-    #         id=mk_item_id(item["id"], item["collection"]),
-    #         document=item,
-    #         refresh=refresh,
-    #     )
-
-    #     if (meta := es_resp.get("meta")) and meta.get("status") == 409:
-    #         raise ConflictError(
-    #             f"Item {item['id']} in collection {item['collection']} already exists"
-    #         )
-
-    # async def delete_item(
-    #     self, item_id: str, collection_id: str, refresh: bool = False
-    # ):
-    #     """Database logic for deleting one item."""
-    #     try:
-    #         await self.client.delete(
-    #             index=ITEMS_INDEX,
-    #             id=mk_item_id(item_id, collection_id),
-    #             refresh=refresh,
-    #         )
-    #     except elasticsearch.exceptions.NotFoundError:
-    #         raise NotFoundError(
-    #             f"Item {item_id} in collection {collection_id} not found"
-    #         )
+    async def delete_item(
+        self, item_id: str, collection_id: str, refresh: bool = False
+    ):
+        """Database logic for deleting one item."""
+        try:
+            await self.client.expire(collection_id, item_id, 0.1)
+        except pyle38.errors.Tile38IdNotFoundError:
+            raise NotFoundError(
+                f"Item {item_id} in collection {collection_id} not found"
+            )
 
     async def create_collection(self, collection: Collection, refresh: bool = False):
         """Database logic for creating one collection."""
