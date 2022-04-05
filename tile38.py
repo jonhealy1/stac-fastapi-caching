@@ -10,7 +10,10 @@ async def main():
 
     user = {
         "first": "Tom",
-        "last": "Anderson"
+        "last": "Anderson",
+        "dict": {
+            "job": "janitor"
+        }
     }
     await tile38.jset('user', 'Tom', 'user', json.dumps(user))
     # await tile38.jset('user', 901, 'name.first', 'Anderson')
@@ -18,6 +21,7 @@ async def main():
     response = json.loads(response.value)
     user = json.loads(response["user"])
     print(user)
+    print(user["dict"]["job"])
 
     print(type(user))
 

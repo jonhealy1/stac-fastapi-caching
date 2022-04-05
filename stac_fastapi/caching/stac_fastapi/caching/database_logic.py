@@ -1,5 +1,6 @@
 """Database logic."""
 import asyncio
+import json
 from http import client
 import logging
 from base64 import urlsafe_b64decode, urlsafe_b64encode
@@ -311,12 +312,10 @@ class DatabaseLogic:
         #     document=collection,
         #     refresh=refresh,
         # )
-        await self.client.jset(collection["id"], 'collections', collection)
+        await self.client.jset('collections', collection["id"], 'collection', json.dumps(collection))
 
-
-
-    # async def find_collection(self, collection_id: str) -> Collection:
-    #     """Database logic to find and return a collection."""
+    async def find_collection(self, collection_id: str) -> Collection:
+        """Database logic to find and return a collection."""
     #     try:
     #         collection = await self.client.get(
     #             index=COLLECTIONS_INDEX, id=collection_id
@@ -325,6 +324,10 @@ class DatabaseLogic:
     #         raise NotFoundError(f"Collection {collection_id} not found")
 
     #     return collection["_source"]
+        response = await self.client.jget('collections', collection_id)
+        response = json.loads(response.value)
+        collection = json.loads(response["collection"])
+        return collection
 
     # async def delete_collection(self, collection_id: str, refresh: bool = False):
     #     """Database logic for deleting one collection."""
