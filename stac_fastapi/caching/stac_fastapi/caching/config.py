@@ -51,11 +51,11 @@ class Tile38Settings(ApiSettings):
     @property
     def create_client(self):
         """Create tile38 client."""
-        client = Tile38(url=f"redis://{str(DOMAIN)}:{str(PORT)}", follower_url="redis://{str(DOMAIN)}:{str(PORT)}")
+        client = Tile38(url=f"redis://{str(DOMAIN)}:{str(PORT)}", follower_url=f"redis://{str(DOMAIN)}:{str(PORT)}")
         return client
 
 
-class AsyncElasticsearchSettings(ApiSettings):
+class AsyncTile38Settings(ApiSettings):
     """API settings."""
 
     # Fields which are defined by STAC but not included in the database model
@@ -64,5 +64,5 @@ class AsyncElasticsearchSettings(ApiSettings):
     @property
     def create_client(self):
         """Create async tile38 client."""
-        client = Tile38(url=f"redis://{str(DOMAIN)}:{str(PORT)}", follower_url="redis://{str(DOMAIN)}:{str(PORT)}")
+        client = Tile38(url=f"redis://{str(DOMAIN)}:{str(PORT)}", follower_url=f"redis://{str(DOMAIN)}:{str(PORT)}")
         return client

@@ -16,7 +16,7 @@ from stac_pydantic.shared import MimeTypes
 from starlette.requests import Request
 
 from stac_fastapi.caching import serializers
-from stac_fastapi.caching.config import ElasticsearchSettings
+from stac_fastapi.caching.config import Tile38Settings
 from stac_fastapi.caching.database_logic import DatabaseLogic
 from stac_fastapi.caching.models.links import PagingLinks
 from stac_fastapi.caching.serializers import CollectionSerializer, ItemSerializer
@@ -418,7 +418,7 @@ class BulkTransactionsClient(BaseBulkTransactionsClient):
 
     def __attrs_post_init__(self):
         """Create es engine."""
-        settings = ElasticsearchSettings()
+        settings = Tile38Settings()
         self.client = settings.create_client
 
     def preprocess_item(self, item: stac_types.Item, base_url) -> stac_types.Item:

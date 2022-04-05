@@ -8,7 +8,7 @@ from stac_fastapi.caching.core import (
     TransactionsClient,
 )
 from stac_fastapi.caching.extensions import QueryExtension
-from stac_fastapi.caching.indexes import IndexesClient
+# from stac_fastapi.caching.indexes import IndexesClient
 from stac_fastapi.caching.session import Session
 from stac_fastapi.extensions.core import (  # FieldsExtension,
     ContextExtension,
