@@ -1,6 +1,7 @@
 """Database logic."""
 import asyncio
 import json
+import pyle38
 from http import client
 import logging
 from base64 import urlsafe_b64decode, urlsafe_b64encode
@@ -316,15 +317,10 @@ class DatabaseLogic:
 
     async def find_collection(self, collection_id: str) -> Collection:
         """Database logic to find and return a collection."""
-    #     try:
-    #         collection = await self.client.get(
-    #             index=COLLECTIONS_INDEX, id=collection_id
-    #         )
-    #     except elasticsearch.exceptions.NotFoundError:
-    #         raise NotFoundError(f"Collection {collection_id} not found")
-
-    #     return collection["_source"]
-        response = await self.client.jget('collections', collection_id)
+        try: 
+            response = await self.client.jget('collections', collection_id)
+        except pyle38.errors.Tile38IdNotFoundError:
+            raise NotFoundError(f"Collection {collection_id} not found")
         response = json.loads(response.value)
         collection = json.loads(response["collection"])
         return collection
