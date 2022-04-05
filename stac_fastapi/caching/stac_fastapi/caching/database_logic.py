@@ -80,8 +80,17 @@ class DatabaseLogic:
             collections.append(json.loads(collection["collection"]))
         return collections
 
-    # async def get_one_item(self, collection_id: str, item_id: str) -> Dict:
-    #     """Database logic to retrieve a single item."""
+    async def get_one_item(self, collection_id: str, item_id: str) -> Dict:
+        """Database logic to retrieve a single item."""
+        try: 
+            response = await self.client.jget(collection_id, item_id)
+        except pyle38.errors.Tile38IdNotFoundError:
+            raise NotFoundError(
+                f"Item {item_id} does not exist in Collection {collection_id}"
+            )
+        response = json.loads(response.value)
+        item = json.loads(response["item"])
+        return item
     #     try:
     #         item = await self.client.get(
     #             index=ITEMS_INDEX, id=mk_item_id(item_id, collection_id)
@@ -248,8 +257,8 @@ class DatabaseLogic:
     #     if not await self.client.exists(index=COLLECTIONS_INDEX, id=collection_id):
     #         raise NotFoundError(f"Collection {collection_id} does not exist")
 
-    # async def prep_create_item(self, item: Item, base_url: str) -> Item:
-    #     """Database logic for prepping an item for insertion."""
+    async def prep_create_item(self, item: Item, base_url: str) -> Item:
+        """Database logic for prepping an item for insertion."""
     #     await self.check_collection_exists(collection_id=item["collection"])
 
     #     if await self.client.exists(
@@ -259,7 +268,7 @@ class DatabaseLogic:
     #             f"Item {item['id']} in collection {item['collection']} already exists"
     #         )
 
-    #     return self.item_serializer.stac_to_db(item, base_url)
+        return self.item_serializer.stac_to_db(item, base_url)
 
     # def sync_prep_create_item(self, item: Item, base_url: str) -> Item:
     #     """Database logic for prepping an item for insertion."""
@@ -276,9 +285,18 @@ class DatabaseLogic:
 
     #     return self.item_serializer.stac_to_db(item, base_url)
 
-    # async def create_item(self, item: Item, refresh: bool = False):
-    #     """Database logic for creating one item."""
-    #     # todo: check if collection exists, but cache
+    async def create_item(self, item: Item, refresh: bool = False):
+        """Database logic for creating one item."""
+        # todo: check if collection exists, but cache
+        # try: 
+        #     await self.client.jget('collections', collection["id"])
+        #     raise ConflictError(f"Collection {collection['id']} already exists")
+        # except pyle38.errors.Tile38IdNotFoundError:
+        #     pass
+
+        await self.client.jset(item["collection"], item["id"], 'item', json.dumps(item))
+        # await self.client.jset('collections', collection["id"], 'collection', json.dumps(collection))
+
     #     es_resp = await self.client.index(
     #         index=ITEMS_INDEX,
     #         id=mk_item_id(item["id"], item["collection"]),
@@ -328,7 +346,7 @@ class DatabaseLogic:
 
     async def delete_collection(self, collection_id: str, refresh: bool = False):
         """Database logic for deleting one collection."""
-        #     await self.find_collection(collection_id=collection_id)
+        await self.find_collection(collection_id=collection_id)
         await self.client.expire('collections', collection_id, 0.1)
 
     # async def bulk_async(self, processed_items, refresh: bool = False):
