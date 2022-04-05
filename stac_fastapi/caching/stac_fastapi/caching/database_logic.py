@@ -250,31 +250,33 @@ class DatabaseLogic:
 
     #     return items, maybe_count, next_token
 
-    # """ TRANSACTION LOGIC """
+    """ TRANSACTION LOGIC """
 
-    # async def check_collection_exists(self, collection_id: str):
-    #     """Database logic to check if a collection exists."""
-    #     if not await self.client.exists(index=COLLECTIONS_INDEX, id=collection_id):
-    #         raise NotFoundError(f"Collection {collection_id} does not exist")
+    async def check_collection_exists(self, collection_id: str):
+        """Database logic to check if a collection exists."""
+        try: 
+            await self.client.jget('collections', collection_id)   
+        except pyle38.errors.Tile38IdNotFoundError:
+            raise NotFoundError(f"Collection {collection_id} does not exist")
+            
 
     async def prep_create_item(self, item: Item, base_url: str) -> Item:
         """Database logic for prepping an item for insertion."""
-    #     await self.check_collection_exists(collection_id=item["collection"])
+        await self.check_collection_exists(collection_id=item["collection"])
 
-    #     if await self.client.exists(
-    #         index=ITEMS_INDEX, id=mk_item_id(item["id"], item["collection"])
-    #     ):
-    #         raise ConflictError(
-    #             f"Item {item['id']} in collection {item['collection']} already exists"
-    #         )
+        try: 
+            await self.client.jget(item["collection"], item["id"])
+            raise ConflictError(f"Item {item['id']} in collection {item['collection']} already exists")
+        except pyle38.errors.Tile38IdNotFoundError:
+            pass
 
         return self.item_serializer.stac_to_db(item, base_url)
 
     # def sync_prep_create_item(self, item: Item, base_url: str) -> Item:
     #     """Database logic for prepping an item for insertion."""
-    #     collection_id = item["collection"]
-    #     if not self.sync_client.exists(index=COLLECTIONS_INDEX, id=collection_id):
-    #         raise NotFoundError(f"Collection {collection_id} does not exist")
+        # collection_id = item["collection"]
+        # if not self.sync_client.exists(index=COLLECTIONS_INDEX, id=collection_id):
+        #     raise NotFoundError(f"Collection {collection_id} does not exist")
 
     #     if self.sync_client.exists(
     #         index=ITEMS_INDEX, id=mk_item_id(item["id"], item["collection"])
