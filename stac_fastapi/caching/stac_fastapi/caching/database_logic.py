@@ -91,15 +91,6 @@ class DatabaseLogic:
         response = json.loads(response.value)
         item = json.loads(response["item"])
         return item
-    #     try:
-    #         item = await self.client.get(
-    #             index=ITEMS_INDEX, id=mk_item_id(item_id, collection_id)
-    #         )
-    #     except elasticsearch.exceptions.NotFoundError:
-    #         raise NotFoundError(
-    #             f"Item {item_id} does not exist in Collection {collection_id}"
-    #         )
-    #     return item["_source"]
 
     # @staticmethod
     # def make_search():
