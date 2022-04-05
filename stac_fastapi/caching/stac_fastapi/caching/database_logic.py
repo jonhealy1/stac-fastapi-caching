@@ -313,7 +313,7 @@ class DatabaseLogic:
             raise ConflictError(f"Collection {collection['id']} already exists")
         except pyle38.errors.Tile38IdNotFoundError:
             pass
-        
+
         await self.client.jset('collections', collection["id"], 'collection', json.dumps(collection))
 
     async def find_collection(self, collection_id: str) -> Collection:
@@ -326,12 +326,10 @@ class DatabaseLogic:
         collection = json.loads(response["collection"])
         return collection
 
-    # async def delete_collection(self, collection_id: str, refresh: bool = False):
-    #     """Database logic for deleting one collection."""
-    #     await self.find_collection(collection_id=collection_id)
-    #     await self.client.delete(
-    #         index=COLLECTIONS_INDEX, id=collection_id, refresh=refresh
-    #     )
+    async def delete_collection(self, collection_id: str, refresh: bool = False):
+        """Database logic for deleting one collection."""
+        #     await self.find_collection(collection_id=collection_id)
+        await self.client.expire('collections', collection_id, 0.1)
 
     # async def bulk_async(self, processed_items, refresh: bool = False):
     #     """Database logic for async bulk item insertion."""
