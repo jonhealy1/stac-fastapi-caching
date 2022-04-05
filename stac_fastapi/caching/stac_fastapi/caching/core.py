@@ -15,12 +15,12 @@ from stac_pydantic.links import Relations
 from stac_pydantic.shared import MimeTypes
 from starlette.requests import Request
 
-from stac_fastapi.elasticsearch import serializers
-from stac_fastapi.elasticsearch.config import ElasticsearchSettings
-from stac_fastapi.elasticsearch.database_logic import DatabaseLogic
-from stac_fastapi.elasticsearch.models.links import PagingLinks
-from stac_fastapi.elasticsearch.serializers import CollectionSerializer, ItemSerializer
-from stac_fastapi.elasticsearch.session import Session
+from stac_fastapi.caching import serializers
+from stac_fastapi.caching.config import ElasticsearchSettings
+from stac_fastapi.caching.database_logic import DatabaseLogic
+from stac_fastapi.caching.models.links import PagingLinks
+from stac_fastapi.caching.serializers import CollectionSerializer, ItemSerializer
+from stac_fastapi.caching.session import Session
 from stac_fastapi.extensions.third_party.bulk_transactions import (
     BaseBulkTransactionsClient,
     Items,
