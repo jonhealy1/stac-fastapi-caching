@@ -78,10 +78,7 @@ class DatabaseLogic:
         for i in range(objects.count):
             collection = json.loads(objects.objects[i].object)
             collections.append(json.loads(collection["collection"]))
-
         return collections
-    #     collections = await self.client.search(index=COLLECTIONS_INDEX, size=1000)
-    #     return (c["_source"] for c in collections["hits"]["hits"])
 
     # async def get_one_item(self, collection_id: str, item_id: str) -> Dict:
     #     """Database logic to retrieve a single item."""
@@ -311,15 +308,12 @@ class DatabaseLogic:
 
     async def create_collection(self, collection: Collection, refresh: bool = False):
         """Database logic for creating one collection."""
-        # if await self.client.exists(index=COLLECTIONS_INDEX, id=collection["id"]):
-        #     raise ConflictError(f"Collection {collection['id']} already exists")
-
-        # await self.client.index(
-        #     index=COLLECTIONS_INDEX,
-        #     id=collection["id"],
-        #     document=collection,
-        #     refresh=refresh,
-        # )
+        try: 
+            await self.client.jget('collections', collection["id"])
+            raise ConflictError(f"Collection {collection['id']} already exists")
+        except pyle38.errors.Tile38IdNotFoundError:
+            pass
+        
         await self.client.jset('collections', collection["id"], 'collection', json.dumps(collection))
 
     async def find_collection(self, collection_id: str) -> Collection:
