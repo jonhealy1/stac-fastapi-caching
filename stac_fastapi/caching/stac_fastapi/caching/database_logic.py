@@ -8,9 +8,7 @@ from base64 import urlsafe_b64decode, urlsafe_b64encode
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Type, Union
 
 import attr
-# import elasticsearch
-# from elasticsearch import helpers
-# from elasticsearch_dsl import Q, Search
+
 from geojson_pydantic.geometries import (
     GeometryCollection,
     LineString,
@@ -123,9 +121,16 @@ class DatabaseLogic:
     #         )
     #     return search
 
-    # @staticmethod
+    @staticmethod
+    async def apply_bbox_filter(self, collection_id: str, bbox: List):
     # def apply_bbox_filter(search: Search, bbox: List):
-    #     """Database logic to search on bounding box."""
+        """Database logic to search on bounding box."""
+        objects = await self.client.within(collection_id).bounds(bbox[0], bbox[1], bbox[2], bbox[3]).asObjects()
+        items = []
+        for i in range(objects.count):
+            item = json.loads(objects.objects[i].object)
+            items.append(json.loads(item["item"]))
+        return items
     #     return search.filter(
     #         Q(
     #             {
