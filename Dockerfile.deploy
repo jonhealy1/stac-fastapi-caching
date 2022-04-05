@@ -11,8 +11,8 @@ WORKDIR /app
 
 COPY . /app
 
-RUN pip install --no-cache-dir ./stac_fastapi/elasticsearch[server]
+RUN pip install --no-cache-dir ./stac_fastapi/caching[server]
 
 EXPOSE 8080
 
-CMD ["uvicorn", "stac_fastapi.elasticsearch.app:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uvicorn", "stac_fastapi.caching.app:app", "--host", "0.0.0.0", "--port", "8080"]
