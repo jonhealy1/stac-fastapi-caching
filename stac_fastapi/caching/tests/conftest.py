@@ -120,7 +120,10 @@ async def ctx(txn_client: TransactionsClient, test_collection, test_item):
     # todo remove one of these when all methods use it
     await delete_collections_and_items(txn_client)
 
-    await create_collection(txn_client, test_collection)
+    try:
+        await create_collection(txn_client, test_collection)
+    except:
+        pass
     await create_item(txn_client, test_item)
 
     yield Context(item=test_item, collection=test_collection)
