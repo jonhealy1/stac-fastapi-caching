@@ -85,7 +85,8 @@ class DatabaseLogic:
         objects = await self.client.scan("stac_items").asObjects()
         items = []
         for i in range(objects.count):
-            item = json.loads(objects.objects[i].object)
+            # item = json.loads(objects.objects[i].object)
+            item = objects.objects[i].object
             items.append(json.loads(item["item"]))
         return items, 10, None
 
