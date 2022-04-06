@@ -13,20 +13,20 @@ run_es = docker-compose \
 	-e PY_IGNORE_IMPORTMISMATCH=1 \
 	-e APP_HOST=${APP_HOST} \
 	-e APP_PORT=${APP_PORT} \
-	app-elasticsearch
+	app-caching
 
 .PHONY: image-deploy
 image-deploy:
-	docker build -f Dockerfile.deploy -t stac-fastapi-elasticsearch:latest .
+	docker build -f Dockerfile.deploy -t stac-fastapi-caching:latest .
 
 .PHONY: run-deploy-locally
 run-deploy-locally:
-	 docker run -it -p 8080:8080 \
+	 docker run -it -p 8088:8080 \
 		-e ES_HOST=${ES_HOST} \
 		-e ES_PORT=${ES_PORT} \
 		-e ES_USER=${ES_USER} \
 		-e ES_PASS=${ES_PASS} \
-		stac-fastapi-elasticsearch:latest
+		stac-fastapi-caching:latest
 
 .PHONY: image-dev
 image-dev:
@@ -42,7 +42,7 @@ docker-shell:
 
 .PHONY: test
 test:
-	-$(run_es) /bin/bash -c 'export && ./scripts/wait-for-it-es.sh elasticsearch:9200 && cd /app/stac_fastapi/elasticsearch/tests/ && pytest'
+	-$(run_es) /bin/bash -c 'export && ./scripts/wait-for-it-es.sh tile38:9851 && cd /app/stac_fastapi/caching/tests/ && pytest'
 	docker-compose down
 
 .PHONY: run-database
@@ -58,7 +58,7 @@ pybase-install:
 
 .PHONY: install
 install: pybase-install
-	pip install -e ./stac_fastapi/elasticsearch[dev,server]
+	pip install -e ./stac_fastapi/caching[dev,server]
 
 .PHONY: docs-image
 docs-image:

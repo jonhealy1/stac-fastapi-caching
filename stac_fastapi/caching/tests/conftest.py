@@ -10,15 +10,15 @@ from httpx import AsyncClient
 
 from stac_fastapi.api.app import StacApi
 from stac_fastapi.api.models import create_request_model
-from stac_fastapi.elasticsearch.config import AsyncElasticsearchSettings
-from stac_fastapi.elasticsearch.core import (
+from stac_fastapi.caching.config import AsyncTile38Settings
+from stac_fastapi.caching.core import (
     BulkTransactionsClient,
     CoreClient,
     TransactionsClient,
 )
-from stac_fastapi.elasticsearch.database_logic import COLLECTIONS_INDEX, ITEMS_INDEX
-from stac_fastapi.elasticsearch.extensions import QueryExtension
-from stac_fastapi.elasticsearch.indexes import IndexesClient
+from stac_fastapi.caching.database_logic import COLLECTIONS_INDEX, ITEMS_INDEX
+from stac_fastapi.caching.extensions import QueryExtension
+# from stac_fastapi.caching.indexes import IndexesClient
 from stac_fastapi.extensions.core import (  # FieldsExtension,
     ContextExtension,
     SortExtension,
@@ -48,7 +48,7 @@ class MockRequest:
         self.app = app
 
 
-class TestSettings(AsyncElasticsearchSettings):
+class TestSettings(AsyncTile38Settings):
     class Config:
         env_file = ".env.test"
 
@@ -144,7 +144,7 @@ def bulk_txn_client():
 
 @pytest_asyncio.fixture(scope="session")
 async def app():
-    settings = AsyncElasticsearchSettings()
+    settings = AsyncTile38Settings()
     extensions = [
         TransactionExtension(
             client=TransactionsClient(session=None), settings=settings
@@ -185,7 +185,7 @@ async def app():
 
 @pytest_asyncio.fixture(scope="session")
 async def app_client(app):
-    await IndexesClient().create_indexes()
+    # await IndexesClient().create_indexes()
 
     async with AsyncClient(app=app, base_url="http://test-server") as c:
         yield c
