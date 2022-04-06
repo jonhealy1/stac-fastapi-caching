@@ -80,8 +80,9 @@ class DatabaseLogic:
 
     async def get_one_item(self, collection_id: str, item_id: str) -> Dict:
         """Database logic to retrieve a single item."""
+        db_id = mk_item_id(item_id=item_id, collection_id=collection_id)
         try: 
-            response = await self.client.jget(collection_id, item_id)
+            response = await self.client.jget("stac_items", db_id)
         except pyle38.errors.Tile38IdNotFoundError:
             raise NotFoundError(
                 f"Item {item_id} does not exist in Collection {collection_id}"
@@ -265,8 +266,10 @@ class DatabaseLogic:
         """Database logic for prepping an item for insertion."""
         await self.check_collection_exists(collection_id=item["collection"])
 
+        db_id = mk_item_id(item_id=item["id"], collection_id=item["collection"])
+
         try: 
-            await self.client.jget(item["collection"], item["id"])
+            await self.client.jget("stac_items", db_id)
             raise ConflictError(f"Item {item['id']} in collection {item['collection']} already exists")
         except pyle38.errors.Tile38IdNotFoundError:
             pass
@@ -291,23 +294,24 @@ class DatabaseLogic:
     async def create_item(self, item: Item, refresh: bool = False):
         """Database logic for creating one item."""
         # todo: check if collection exists, but cache
+        db_id = mk_item_id(item_id=item["id"], collection_id=item["collection"])
+
         try: 
-            await self.client.jget(item["collection"], item["id"])
+            await self.client.jget("stac_items", db_id)
             raise ConflictError(f"Item {item['id']} in collection {item['collection']} already exists")
         except pyle38.errors.Tile38IdNotFoundError:
             pass
 
-        await self.client.set("items", item["id"]).object(item["geometry"]).exec()
-        await self.client.jset(item["collection"], item["id"], 'item', json.dumps(item))
+        await self.client.set("stac_items", db_id).bounds(item["bbox"][0], item["bbox"][1], item["bbox"][2], item["bbox"][3]).exec()
+        await self.client.jset("stac_items", db_id, 'item', json.dumps(item))
         
-        # SET fleet truck1 OBJECT {"type":"Point","coordinates":[-112.2693,33.5123,115]}
-
     async def delete_item(
         self, item_id: str, collection_id: str, refresh: bool = False
     ):
         """Database logic for deleting one item."""
+        db_id = mk_item_id(item_id=item_id, collection_id=collection_id)
         try:
-            await self.client.expire(collection_id, item_id, 0.1)
+            await self.client.expire("stac_items", db_id, 0.1)
         except pyle38.errors.Tile38IdNotFoundError:
             raise NotFoundError(
                 f"Item {item_id} in collection {collection_id} not found"

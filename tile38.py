@@ -9,7 +9,7 @@ async def main():
     tile38 = Tile38(url="redis://localhost:9851", follower_url="redis://localhost:9851")
     item = {
         "type": "Feature",
-        "id": "test-item-5",
+        "id": "test-item-57",
         "stac_version": "1.0.0",
         "stac_extensions": [
             "https://stac-extensions.github.io/eo/v1.0.0/schema.json",
@@ -94,12 +94,13 @@ async def main():
         ]
     }
 
-    # await tile38.set("items", item["id"]).bounds(item["bbox"][0], item["bbox"][1], item["bbox"][2], item["bbox"][3]).exec()
-    await tile38.set(item["collection"], item["id"]).bounds(item["bbox"][0], item["bbox"][1], item["bbox"][2], item["bbox"][3]).exec()
-    await tile38.jset(item["collection"], item["id"], 'item', json.dumps(item))
+    await tile38.set("test", item["id"]).bounds(item["bbox"][0], item["bbox"][1], item["bbox"][2], item["bbox"][3]).exec()
+    await tile38.jset("test", item["id"], 'item', json.dumps(item))
     bbox = [96.718129,-46.464978,178.632191,-1.445461]
-    objects = await tile38.intersects(item["collection"]).bounds(96.718129,-46.464978,178.632191,-1.445461).asObjects()
+    objects = await tile38.intersects("test").bounds(96.718129,-46.464978,178.632191,-1.445461).asObjects()
     items = []
+    # print(objects.count)
+    # print(objects)
     # print(objects.objects[0].id)
     for i in range(objects.count):
         item_result = objects.objects[i].object
@@ -109,7 +110,7 @@ async def main():
         # items.append(json.loads(item["item"]))
     print(items)
     print(type(items[0]))
-    print(objects.count)
+    
 
     # result = await tile38.get(item["collection"], item["id"]).asObject()
     # print(result.object)
