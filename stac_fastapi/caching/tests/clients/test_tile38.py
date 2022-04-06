@@ -153,6 +153,7 @@ async def test_delete_item(ctx, core_client, txn_client):
             ctx.item["id"], ctx.item["collection"], request=MockRequest
         )
 
+
 @pytest.mark.skip(reason="Bulk insert not implemented")
 async def test_bulk_item_insert(ctx, core_client, txn_client, bulk_txn_client):
     items = {}

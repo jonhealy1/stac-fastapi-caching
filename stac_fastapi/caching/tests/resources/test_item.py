@@ -242,6 +242,7 @@ async def test_item_timestamps(app_client, ctx, load_test_data):
         f"/collections/{ctx.item['collection']}/items/{ctx.item['id']}"
     )
 
+
 @pytest.mark.skip(reason="Search for items not implemented")
 async def test_item_search_by_id_post(app_client, ctx, txn_client):
     """Test POST search by item id (core)"""
