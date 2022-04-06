@@ -80,6 +80,15 @@ class DatabaseLogic:
             collections.append(json.loads(collection["collection"]))
         return collections
 
+    async def get_item_collection(self) -> List[Dict[str, Any]]:
+        """Database logic to retrieve a list of all items in a collection."""
+        objects = await self.client.scan("stac_items").asObjects()
+        items = []
+        for i in range(objects.count):
+            item = json.loads(objects.objects[i].object)
+            items.append(json.loads(item["item"]))
+        return items, 10, None
+
     async def get_one_item(self, collection_id: str, item_id: str) -> Dict:
         """Database logic to retrieve a single item."""
         db_id = mk_item_id(item_id=item_id, collection_id=collection_id)
@@ -280,6 +289,8 @@ class DatabaseLogic:
             await self.client.jget("collections", collection_id)
         except pyle38.errors.Tile38IdNotFoundError:
             raise NotFoundError(f"Collection {collection_id} does not exist")
+        except pyle38.errors.Tile38KeyNotFoundError:
+            raise NotFoundError(f"Collection {collection_id} does not exist")
 
     async def prep_create_item(self, item: Item, base_url: str) -> Item:
         """Database logic for prepping an item for insertion."""
@@ -351,6 +362,8 @@ class DatabaseLogic:
             raise ConflictError(f"Collection {collection['id']} already exists")
         except pyle38.errors.Tile38IdNotFoundError:
             pass
+        except pyle38.errors.Tile38KeyNotFoundError:
+            pass
 
         await self.client.jset(
             "collections", collection["id"], "collection", json.dumps(collection)
@@ -361,6 +374,8 @@ class DatabaseLogic:
         try:
             response = await self.client.jget("collections", collection_id)
         except pyle38.errors.Tile38IdNotFoundError:
+            raise NotFoundError(f"Collection {collection_id} not found")
+        except pyle38.errors.Tile38KeyNotFoundError:
             raise NotFoundError(f"Collection {collection_id} not found")
         response = json.loads(response.value)
         collection = json.loads(response["collection"])
@@ -397,20 +412,13 @@ class DatabaseLogic:
     #         for item in processed_items
     #     ]
 
-    # # DANGER
-    # async def delete_items(self) -> None:
-    #     """Danger. this is only for tests."""
-    #     await self.client.delete_by_query(
-    #         index=ITEMS_INDEX,
-    #         body={"query": {"match_all": {}}},
-    #         wait_for_completion=True,
-    #     )
+    # DANGER
+    async def delete_items(self) -> None:
+        """Danger. this is only for tests."""
+        await self.client.drop(ITEMS_INDEX)
 
-    # # DANGER
-    # async def delete_collections(self) -> None:
-    #     """Danger. this is only for tests."""
-    #     await self.client.delete_by_query(
-    #         index=COLLECTIONS_INDEX,
-    #         body={"query": {"match_all": {}}},
-    #         wait_for_completion=True,
-    #     )
+    # DANGER
+    async def delete_collections(self) -> None:
+        """Danger. this is only for tests."""
+        await self.client.drop(COLLECTIONS_INDEX)
+  

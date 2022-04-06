@@ -93,14 +93,15 @@ class CoreClient(AsyncBaseCoreClient):
         request: Request = kwargs["request"]
         base_url = str(kwargs["request"].base_url)
 
-        items, maybe_count, next_token = await self.database.execute_search(
-            search=self.database.apply_collections_filter(
-                self.database.make_search(), [collection_id]
-            ),
-            limit=limit,
-            token=token,
-            sort=None,
-        )
+        # items, maybe_count, next_token = await self.database.execute_search(
+        #     search=self.database.apply_collections_filter(
+        #         self.database.make_search(), [collection_id]
+        #     ),
+        #     limit=limit,
+        #     token=token,
+        #     sort=None,
+        # )
+        items, maybe_count, next_token = await self.database.get_item_collection()
 
         items = [
             self.item_serializer.db_to_stac(item, base_url=base_url) for item in items
@@ -244,6 +245,7 @@ class CoreClient(AsyncBaseCoreClient):
         #     )
 
         items = []
+        count = 10
         limit = search_request.limit
         if search_request.bbox:
             bbox = search_request.bbox
