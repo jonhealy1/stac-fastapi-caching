@@ -129,13 +129,15 @@ class DatabaseLogic:
     #     return search
 
     # @staticmethod
-    async def apply_bbox_filter(self, collection_id: str, bbox: List):
+    async def apply_bbox_filter(self, collection_id: str, bbox: List, limit: int):
     # def apply_bbox_filter(search: Search, bbox: List):
         """Database logic to search on bounding box."""
         objects = await self.client.intersects("test").bounds(bbox[0],bbox[1],bbox[2],bbox[3]).asObjects()
         count = objects.count
         items = []
-        for i in range(objects.count):
+        if count < limit:
+            limit = count
+        for i in range(limit):
             item_result = objects.objects[i].object
             item_result["id"] = objects.objects[i].id
             items.append(json.loads(item_result["item"]))
@@ -190,9 +192,9 @@ class DatabaseLogic:
     #         return {s.field: {"order": s.direction} for s in sortby}
     #     else:
     #         return None
-    async def execute_search(self, search: dict):
-        items, count = await self.apply_bbox_filter(collection_id="test-collection", bbox=search.bbox)
-        return items, count, None
+    # async def execute_search(self, search: dict):
+    #     items, count = await self.apply_bbox_filter(collection_id="test-collection", bbox=search.bbox)
+    #     return items, count, None
 
     # async def execute_search(
     #     self,

@@ -243,10 +243,17 @@ class CoreClient(AsyncBaseCoreClient):
         #         search=search, datetime_search=datetime_search
         #     )
 
-        # if search_request.bbox:
-        #     bbox = search_request.bbox
-        #     if len(bbox) == 6:
-        #         bbox = [bbox[0], bbox[1], bbox[3], bbox[4]]
+        items = []
+        limit = search_request.limit
+        if search_request.bbox:
+            bbox = search_request.bbox
+            if len(bbox) == 6:
+                bbox = [bbox[0], bbox[1], bbox[3], bbox[4]]
+            items, count = await self.database.apply_bbox_filter(
+                collection_id="test-collection", 
+                bbox=search_request.bbox,
+                limit=limit
+            )
 
         #     search = self.database.apply_bbox_filter(search=search, bbox=bbox)
 
@@ -267,16 +274,15 @@ class CoreClient(AsyncBaseCoreClient):
         # if search_request.sortby:
         #     sort = self.database.populate_sort(search_request.sortby)
 
-        limit = 10
         # if search_request.limit:
         #     limit = search_request.limit
 
-        items, maybe_count, next_token = await self.database.execute_search(
-            search=search_request,
-            # limit=limit,
-            # token=search_request.token,  # type: ignore
-            # sort=sort,
-        )
+        # items, maybe_count, next_token = await self.database.execute_search(
+        #     search=search_request,
+        #     # limit=limit,
+        #     # token=search_request.token,  # type: ignore
+        #     # sort=sort,
+        # )
 
         items = [
             self.item_serializer.db_to_stac(item, base_url=base_url) for item in items
@@ -288,8 +294,8 @@ class CoreClient(AsyncBaseCoreClient):
                 "returned": len(items),
                 "limit": limit,
             }
-            if maybe_count is not None:
-                context_obj["matched"] = maybe_count
+            if count is not None:
+                context_obj["matched"] = count
 
         links = []
         # if next_token:
