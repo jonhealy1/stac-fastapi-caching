@@ -164,16 +164,18 @@ class DatabaseLogic:
     #     ],
     # ):
         """Database logic to search a geojson object."""
+        items = []
         if intersects.type == "Point":
             new_intersects = {}
             point = intersects.coordinates
             new_intersects["type"] = "Polygon"
             new_intersects["coordinates"] = bbox2polygon(float(point[0]), float(point[1]), float(point[0])+0.001, float(point[1])+0.001)
             objects = await self.client.intersects("stac_items").object(new_intersects).asObjects()
-        else:
+        elif intersects.type == "Polygon":
             objects = await self.client.intersects("stac_items").object(intersects).asObjects()
+        else:
+            return items, 0
         count = objects.count
-        items = []
         if count < limit:
             limit = count
         for i in range(limit):
@@ -182,21 +184,6 @@ class DatabaseLogic:
             items.append(json.loads(item_result["item"]))
 
         return items, count
-    #     return search.filter(
-    #         Q(
-    #             {
-    #                 "geo_shape": {
-    #                     "geometry": {
-    #                         "shape": {
-    #                             "type": intersects.type.lower(),
-    #                             "coordinates": intersects.coordinates,
-    #                         },
-    #                         "relation": "intersects",
-    #                     }
-    #                 }
-    #             }
-    #         )
-    #     )
 
     # @staticmethod
     # def apply_stacql_filter(search: Search, op: str, field: str, value: float):
