@@ -1,31 +1,33 @@
 """Database logic."""
-import asyncio
+# import asyncio
 import json
-import pyle38
-from http import client
 import logging
-from base64 import urlsafe_b64decode, urlsafe_b64encode
-from typing import Any, Dict, Iterable, List, Optional, Tuple, Type, Union
+
+# from http import client
+from typing import Any, Dict, List, Type, Union
 
 import attr
-
-from geojson_pydantic.geometries import (
-    GeometryCollection,
-    LineString,
-    MultiLineString,
-    MultiPoint,
-    MultiPolygon,
-    Point,
-    Polygon,
-)
+import pyle38
 
 from stac_fastapi.caching import serializers
 from stac_fastapi.caching.config import AsyncTile38Settings
-from stac_fastapi.caching.config import (
-    Tile38Settings as SyncTile38Settings,
-)
+from stac_fastapi.caching.config import Tile38Settings as SyncTile38Settings
 from stac_fastapi.types.errors import ConflictError, NotFoundError
 from stac_fastapi.types.stac import Collection, Item
+
+# from base64 import urlsafe_b64decode, urlsafe_b64encode
+
+
+# from geojson_pydantic.geometries import (
+#     GeometryCollection,
+#     LineString,
+#     MultiLineString,
+#     MultiPoint,
+#     MultiPolygon,
+#     Point,
+#     Polygon,
+# )
+
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +73,7 @@ class DatabaseLogic:
         """Database logic to retrieve a list of all collections."""
         # https://github.com/stac-utils/stac-fastapi-elasticsearch/issues/65
         # collections should be paginated, but at least return more than the default 10 for now
-        objects = await self.client.scan('collections').asObjects()
+        objects = await self.client.scan("collections").asObjects()
         collections = []
         for i in range(objects.count):
             collection = json.loads(objects.objects[i].object)
@@ -81,7 +83,7 @@ class DatabaseLogic:
     async def get_one_item(self, collection_id: str, item_id: str) -> Dict:
         """Database logic to retrieve a single item."""
         db_id = mk_item_id(item_id=item_id, collection_id=collection_id)
-        try: 
+        try:
             response = await self.client.jget("stac_items", db_id)
         except pyle38.errors.Tile38IdNotFoundError:
             raise NotFoundError(
@@ -90,7 +92,7 @@ class DatabaseLogic:
         except pyle38.errors.Tile38KeyNotFoundError:
             raise NotFoundError(
                 f"Item {item_id} does not exist in Collection {collection_id}"
-            )  
+            )
         response = json.loads(response.value)
         item = json.loads(response["item"])
         return item
@@ -130,12 +132,12 @@ class DatabaseLogic:
 
     # @staticmethod
     async def apply_bbox_filter(self, collection_id: str, bbox: List, limit: int):
-    # def apply_bbox_filter(search: Search, bbox: List):
+        # def apply_bbox_filter(search: Search, bbox: List):
         """Database logic to search on bounding box."""
         # objects = await self.client.intersects("test").bounds(bbox[0],bbox[1],bbox[2],bbox[3]).asObjects()
         geom = {
             "type": "Polygon",
-            "coordinates": bbox2polygon(bbox[0], bbox[1], bbox[2], bbox[3])
+            "coordinates": bbox2polygon(bbox[0], bbox[1], bbox[2], bbox[3]),
         }
         objects = await self.client.intersects("stac_items").object(geom).asObjects()
         count = objects.count
@@ -151,28 +153,41 @@ class DatabaseLogic:
 
     # @staticmethod
     async def apply_intersects_filter(self, intersects: dict, limit: int):
-    #     self,
-    #     search: dict
-    #     intersects: Union[
-    #         Point,
-    #         MultiPoint,
-    #         LineString,
-    #         MultiLineString,
-    #         Polygon,
-    #         MultiPolygon,
-    #         GeometryCollection,
-    #     ],
-    # ):
+        #     self,
+        #     search: dict
+        #     intersects: Union[
+        #         Point,
+        #         MultiPoint,
+        #         LineString,
+        #         MultiLineString,
+        #         Polygon,
+        #         MultiPolygon,
+        #         GeometryCollection,
+        #     ],
+        # ):
         """Database logic to search a geojson object."""
         items = []
         if intersects.type == "Point":
             new_intersects = {}
             point = intersects.coordinates
             new_intersects["type"] = "Polygon"
-            new_intersects["coordinates"] = bbox2polygon(float(point[0]), float(point[1]), float(point[0])+0.001, float(point[1])+0.001)
-            objects = await self.client.intersects("stac_items").object(new_intersects).asObjects()
+            new_intersects["coordinates"] = bbox2polygon(
+                float(point[0]),
+                float(point[1]),
+                float(point[0]) + 0.001,
+                float(point[1]) + 0.001,
+            )
+            objects = (
+                await self.client.intersects("stac_items")
+                .object(new_intersects)
+                .asObjects()
+            )
         elif intersects.type == "Polygon":
-            objects = await self.client.intersects("stac_items").object(intersects).asObjects()
+            objects = (
+                await self.client.intersects("stac_items")
+                .object(intersects)
+                .asObjects()
+            )
         else:
             return items, 0
         count = objects.count
@@ -261,11 +276,10 @@ class DatabaseLogic:
 
     async def check_collection_exists(self, collection_id: str):
         """Database logic to check if a collection exists."""
-        try: 
-            await self.client.jget('collections', collection_id)   
+        try:
+            await self.client.jget("collections", collection_id)
         except pyle38.errors.Tile38IdNotFoundError:
             raise NotFoundError(f"Collection {collection_id} does not exist")
-            
 
     async def prep_create_item(self, item: Item, base_url: str) -> Item:
         """Database logic for prepping an item for insertion."""
@@ -273,9 +287,11 @@ class DatabaseLogic:
 
         db_id = mk_item_id(item_id=item["id"], collection_id=item["collection"])
 
-        try: 
+        try:
             await self.client.jget("stac_items", db_id)
-            raise ConflictError(f"Item {item['id']} in collection {item['collection']} already exists")
+            raise ConflictError(
+                f"Item {item['id']} in collection {item['collection']} already exists"
+            )
         except pyle38.errors.Tile38IdNotFoundError:
             pass
         except pyle38.errors.Tile38KeyNotFoundError:
@@ -285,9 +301,9 @@ class DatabaseLogic:
 
     # def sync_prep_create_item(self, item: Item, base_url: str) -> Item:
     #     """Database logic for prepping an item for insertion."""
-        # collection_id = item["collection"]
-        # if not self.sync_client.exists(index=COLLECTIONS_INDEX, id=collection_id):
-        #     raise NotFoundError(f"Collection {collection_id} does not exist")
+    # collection_id = item["collection"]
+    # if not self.sync_client.exists(index=COLLECTIONS_INDEX, id=collection_id):
+    #     raise NotFoundError(f"Collection {collection_id} does not exist")
 
     #     if self.sync_client.exists(
     #         index=ITEMS_INDEX, id=mk_item_id(item["id"], item["collection"])
@@ -303,17 +319,19 @@ class DatabaseLogic:
         # todo: check if collection exists, but cache
         db_id = mk_item_id(item_id=item["id"], collection_id=item["collection"])
 
-        try: 
+        try:
             await self.client.jget("stac_items", db_id)
-            raise ConflictError(f"Item {item['id']} in collection {item['collection']} already exists")
+            raise ConflictError(
+                f"Item {item['id']} in collection {item['collection']} already exists"
+            )
         except pyle38.errors.Tile38IdNotFoundError:
             pass
         except pyle38.errors.Tile38KeyNotFoundError:
             pass
 
         await self.client.set("stac_items", db_id).object(item["geometry"]).exec()
-        await self.client.jset("stac_items", db_id, 'item', json.dumps(item))
-        
+        await self.client.jset("stac_items", db_id, "item", json.dumps(item))
+
     async def delete_item(
         self, item_id: str, collection_id: str, refresh: bool = False
     ):
@@ -328,18 +346,20 @@ class DatabaseLogic:
 
     async def create_collection(self, collection: Collection, refresh: bool = False):
         """Database logic for creating one collection."""
-        try: 
-            await self.client.jget('collections', collection["id"])
+        try:
+            await self.client.jget("collections", collection["id"])
             raise ConflictError(f"Collection {collection['id']} already exists")
         except pyle38.errors.Tile38IdNotFoundError:
             pass
 
-        await self.client.jset('collections', collection["id"], 'collection', json.dumps(collection))
+        await self.client.jset(
+            "collections", collection["id"], "collection", json.dumps(collection)
+        )
 
     async def find_collection(self, collection_id: str) -> Collection:
         """Database logic to find and return a collection."""
-        try: 
-            response = await self.client.jget('collections', collection_id)
+        try:
+            response = await self.client.jget("collections", collection_id)
         except pyle38.errors.Tile38IdNotFoundError:
             raise NotFoundError(f"Collection {collection_id} not found")
         response = json.loads(response.value)
@@ -349,7 +369,7 @@ class DatabaseLogic:
     async def delete_collection(self, collection_id: str, refresh: bool = False):
         """Database logic for deleting one collection."""
         await self.find_collection(collection_id=collection_id)
-        await self.client.expire('collections', collection_id, 0.1)
+        await self.client.expire("collections", collection_id, 0.1)
 
     # async def bulk_async(self, processed_items, refresh: bool = False):
     #     """Database logic for async bulk item insertion."""

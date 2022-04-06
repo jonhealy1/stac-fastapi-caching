@@ -1,9 +1,10 @@
 """API configuration."""
 import os
-from typing import Any, Dict, Set
+from typing import Set
+
+from pyle38 import Tile38
 
 from stac_fastapi.types.config import ApiSettings
-from pyle38 import Tile38
 
 DOMAIN = os.getenv("38_HOST")
 PORT = os.getenv("38_PORT")
@@ -51,7 +52,10 @@ class Tile38Settings(ApiSettings):
     @property
     def create_client(self):
         """Create tile38 client."""
-        client = Tile38(url=f"redis://{str(DOMAIN)}:{str(PORT)}", follower_url=f"redis://{str(DOMAIN)}:{str(PORT)}")
+        client = Tile38(
+            url=f"redis://{str(DOMAIN)}:{str(PORT)}",
+            follower_url=f"redis://{str(DOMAIN)}:{str(PORT)}",
+        )
         return client
 
 
@@ -64,5 +68,8 @@ class AsyncTile38Settings(ApiSettings):
     @property
     def create_client(self):
         """Create async tile38 client."""
-        client = Tile38(url=f"redis://{str(DOMAIN)}:{str(PORT)}", follower_url=f"redis://{str(DOMAIN)}:{str(PORT)}")
+        client = Tile38(
+            url=f"redis://{str(DOMAIN)}:{str(PORT)}",
+            follower_url=f"redis://{str(DOMAIN)}:{str(PORT)}",
+        )
         return client

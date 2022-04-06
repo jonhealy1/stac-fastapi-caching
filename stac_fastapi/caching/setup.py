@@ -56,8 +56,6 @@ setup(
     tests_require=extra_reqs["dev"],
     extras_require=extra_reqs,
     entry_points={
-        "console_scripts": [
-            "stac-fastapi-caching=stac_fastapi.caching.app:run"
-        ]
+        "console_scripts": ["stac-fastapi-caching=stac_fastapi.caching.app:run"]
     },
 )

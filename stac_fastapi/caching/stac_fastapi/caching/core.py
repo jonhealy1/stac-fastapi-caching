@@ -250,9 +250,7 @@ class CoreClient(AsyncBaseCoreClient):
             if len(bbox) == 6:
                 bbox = [bbox[0], bbox[1], bbox[3], bbox[4]]
             items, count = await self.database.apply_bbox_filter(
-                collection_id="test-collection", 
-                bbox=search_request.bbox,
-                limit=limit
+                collection_id="test-collection", bbox=search_request.bbox, limit=limit
             )
 
         #     search = self.database.apply_bbox_filter(search=search, bbox=bbox)
