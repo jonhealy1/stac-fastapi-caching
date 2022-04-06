@@ -90,20 +90,22 @@ class DatabaseLogic:
         item = json.loads(response["item"])
         return item
 
-    # @staticmethod
-    # def make_search():
-    #     """Database logic to create a Search instance."""
-    #     return Search().sort(*DEFAULT_SORT)
+    @staticmethod
+    def make_search():
+        """Database logic to create a Search instance."""
+        pass
+        # return Search().sort(*DEFAULT_SORT)
 
     # @staticmethod
     # def apply_ids_filter(search: Search, item_ids: List[str]):
     #     """Database logic to search a list of STAC item ids."""
     #     return search.filter("terms", id=item_ids)
 
-    # @staticmethod
-    # def apply_collections_filter(search: Search, collection_ids: List[str]):
-    #     """Database logic to search a list of STAC collection ids."""
-    #     return search.filter("terms", collection=collection_ids)
+    @staticmethod
+    def apply_collections_filter(search: dict, collection_ids: List[str]):
+        """Database logic to search a list of STAC collection ids."""
+        pass
+        # return search.filter("terms", collection=collection_ids)
 
     # @staticmethod
     # def apply_datetime_filter(search: Search, datetime_search):
@@ -121,11 +123,11 @@ class DatabaseLogic:
     #         )
     #     return search
 
-    @staticmethod
+    # @staticmethod
     async def apply_bbox_filter(self, collection_id: str, bbox: List):
     # def apply_bbox_filter(search: Search, bbox: List):
         """Database logic to search on bounding box."""
-        objects = await self.client.within(collection_id).bounds(bbox[0], bbox[1], bbox[2], bbox[3]).asObjects()
+        objects = await self.client.within("items").bounds(bbox[0], bbox[1], bbox[2], bbox[3]).asObjects()
         items = []
         for i in range(objects.count):
             item = json.loads(objects.objects[i].object)
@@ -195,6 +197,9 @@ class DatabaseLogic:
     #         return {s.field: {"order": s.direction} for s in sortby}
     #     else:
     #         return None
+    async def execute_search(self, search: dict):
+        items = await self.apply_bbox_filter(collection_id="test-collection", bbox=search.bbox)
+        return items, 100, None
 
     # async def execute_search(
     #     self,
@@ -292,7 +297,10 @@ class DatabaseLogic:
         except pyle38.errors.Tile38IdNotFoundError:
             pass
 
+        await self.client.set("items", item["id"]).object(item["geometry"]).exec()
         await self.client.jset(item["collection"], item["id"], 'item', json.dumps(item))
+        
+        # SET fleet truck1 OBJECT {"type":"Point","coordinates":[-112.2693,33.5123,115]}
 
     async def delete_item(
         self, item_id: str, collection_id: str, refresh: bool = False

@@ -225,82 +225,62 @@ class CoreClient(AsyncBaseCoreClient):
         request: Request = kwargs["request"]
         base_url = str(request.base_url)
 
-        search = self.database.make_search()
+        # search = self.database.make_search()
 
-        if search_request.ids:
-            search = self.database.apply_ids_filter(
-                search=search, item_ids=search_request.ids
-            )
+        # if search_request.ids:
+        #     search = self.database.apply_ids_filter(
+        #         search=search, item_ids=search_request.ids
+        #     )
 
-        if search_request.collections:
-            search = self.database.apply_collections_filter(
-                search=search, collection_ids=search_request.collections
-            )
+        # if search_request.collections:
+        #     search = self.database.apply_collections_filter(
+        #         search=search, collection_ids=search_request.collections
+        #     )
 
-        if search_request.datetime:
-            datetime_search = self._return_date(search_request.datetime)
-            search = self.database.apply_datetime_filter(
-                search=search, datetime_search=datetime_search
-            )
+        # if search_request.datetime:
+        #     datetime_search = self._return_date(search_request.datetime)
+        #     search = self.database.apply_datetime_filter(
+        #         search=search, datetime_search=datetime_search
+        #     )
 
-        if search_request.bbox:
-            bbox = search_request.bbox
-            if len(bbox) == 6:
-                bbox = [bbox[0], bbox[1], bbox[3], bbox[4]]
+        # if search_request.bbox:
+        #     bbox = search_request.bbox
+        #     if len(bbox) == 6:
+        #         bbox = [bbox[0], bbox[1], bbox[3], bbox[4]]
 
-            search = self.database.apply_bbox_filter(search=search, bbox=bbox)
+        #     search = self.database.apply_bbox_filter(search=search, bbox=bbox)
 
-        if search_request.intersects:
-            self.database.apply_intersects_filter(
-                search=search, intersects=search_request.intersects
-            )
+        # if search_request.intersects:
+        #     self.database.apply_intersects_filter(
+        #         search=search, intersects=search_request.intersects
+        #     )
 
-        if search_request.query:
-            for (field_name, expr) in search_request.query.items():
-                field = "properties__" + field_name
-                for (op, value) in expr.items():
-                    search = self.database.apply_stacql_filter(
-                        search=search, op=op, field=field, value=value
-                    )
+        # if search_request.query:
+        #     for (field_name, expr) in search_request.query.items():
+        #         field = "properties__" + field_name
+        #         for (op, value) in expr.items():
+        #             search = self.database.apply_stacql_filter(
+        #                 search=search, op=op, field=field, value=value
+        #             )
 
-        sort = None
-        if search_request.sortby:
-            sort = self.database.populate_sort(search_request.sortby)
+        # sort = None
+        # if search_request.sortby:
+        #     sort = self.database.populate_sort(search_request.sortby)
 
         limit = 10
-        if search_request.limit:
-            limit = search_request.limit
+        # if search_request.limit:
+        #     limit = search_request.limit
 
         items, maybe_count, next_token = await self.database.execute_search(
-            search=search,
-            limit=limit,
-            token=search_request.token,  # type: ignore
-            sort=sort,
+            search=search_request,
+            # limit=limit,
+            # token=search_request.token,  # type: ignore
+            # sort=sort,
         )
 
         items = [
             self.item_serializer.db_to_stac(item, base_url=base_url) for item in items
         ]
-
-        # if self.extension_is_enabled("FieldsExtension"):
-        #     if search_request.query is not None:
-        #         query_include: Set[str] = set(
-        #             [
-        #                 k if k in Settings.get().indexed_fields else f"properties.{k}"
-        #                 for k in search_request.query.keys()
-        #             ]
-        #         )
-        #         if not search_request.fields.include:
-        #             search_request.fields.include = query_include
-        #         else:
-        #             search_request.fields.include.union(query_include)
-
-        #     filter_kwargs = search_request.fields.filter_fields
-
-        #     response_features = [
-        #         json.loads(stac_pydantic.Item(**feat).json(**filter_kwargs))
-        #         for feat in response_features
-        #     ]
 
         context_obj = None
         if self.extension_is_enabled("ContextExtension"):
@@ -312,8 +292,8 @@ class CoreClient(AsyncBaseCoreClient):
                 context_obj["matched"] = maybe_count
 
         links = []
-        if next_token:
-            links = await PagingLinks(request=request, next=next_token).get_links()
+        # if next_token:
+        #     links = await PagingLinks(request=request, next=next_token).get_links()
 
         return ItemCollection(
             type="FeatureCollection",
