@@ -132,7 +132,12 @@ class DatabaseLogic:
     async def apply_bbox_filter(self, collection_id: str, bbox: List, limit: int):
     # def apply_bbox_filter(search: Search, bbox: List):
         """Database logic to search on bounding box."""
-        objects = await self.client.intersects("test").bounds(bbox[0],bbox[1],bbox[2],bbox[3]).asObjects()
+        # objects = await self.client.intersects("test").bounds(bbox[0],bbox[1],bbox[2],bbox[3]).asObjects()
+        geom = {
+            "type": "Polygon",
+            "coordinates": bbox2polygon(bbox[0], bbox[1], bbox[2], bbox[3])
+        }
+        objects = await self.client.intersects("stac_items").object(geom).asObjects()
         count = objects.count
         items = []
         if count < limit:
@@ -145,8 +150,9 @@ class DatabaseLogic:
         return items, count
 
     # @staticmethod
-    # def apply_intersects_filter(
-    #     search: Search,
+    async def apply_intersects_filter(self, intersects: dict, limit: int):
+    #     self,
+    #     search: dict
     #     intersects: Union[
     #         Point,
     #         MultiPoint,
@@ -157,7 +163,25 @@ class DatabaseLogic:
     #         GeometryCollection,
     #     ],
     # ):
-    #     """Database logic to search a geojson object."""
+        """Database logic to search a geojson object."""
+        if intersects.type == "Point":
+            new_intersects = {}
+            point = intersects.coordinates
+            new_intersects["type"] = "Polygon"
+            new_intersects["coordinates"] = bbox2polygon(float(point[0]), float(point[1]), float(point[0])+0.001, float(point[1])+0.001)
+            objects = await self.client.intersects("stac_items").object(new_intersects).asObjects()
+        else:
+            objects = await self.client.intersects("stac_items").object(intersects).asObjects()
+        count = objects.count
+        items = []
+        if count < limit:
+            limit = count
+        for i in range(limit):
+            item_result = objects.objects[i].object
+            item_result["id"] = objects.objects[i].id
+            items.append(json.loads(item_result["item"]))
+
+        return items, count
     #     return search.filter(
     #         Q(
     #             {
@@ -300,7 +324,7 @@ class DatabaseLogic:
         except pyle38.errors.Tile38KeyNotFoundError:
             pass
 
-        await self.client.set("stac_items", db_id).bounds(item["bbox"][0], item["bbox"][1], item["bbox"][2], item["bbox"][3]).exec()
+        await self.client.set("stac_items", db_id).object(item["geometry"]).exec()
         await self.client.jset("stac_items", db_id, 'item', json.dumps(item))
         
     async def delete_item(

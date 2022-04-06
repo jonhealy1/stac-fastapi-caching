@@ -257,10 +257,10 @@ class CoreClient(AsyncBaseCoreClient):
 
         #     search = self.database.apply_bbox_filter(search=search, bbox=bbox)
 
-        # if search_request.intersects:
-        #     self.database.apply_intersects_filter(
-        #         search=search, intersects=search_request.intersects
-        #     )
+        if search_request.intersects:
+            items, count = await self.database.apply_intersects_filter(
+                intersects=search_request.intersects, limit=limit
+            )
 
         # if search_request.query:
         #     for (field_name, expr) in search_request.query.items():
