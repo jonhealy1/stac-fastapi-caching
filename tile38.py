@@ -97,9 +97,9 @@ async def main():
     await tile38.set("test", item["id"]).bounds(item["bbox"][0], item["bbox"][1], item["bbox"][2], item["bbox"][3]).exec()
     await tile38.jset("test", item["id"], 'item', json.dumps(item))
     bbox = [96.718129,-46.464978,178.632191,-1.445461]
-    objects = await tile38.intersects("test").bounds(96.718129,-46.464978,178.632191,-1.445461).asObjects()
+    objects = await tile38.intersects("test").bounds(bbox[0], bbox[1], bbox[2], bbox[3]).asObjects()
     items = []
-    # print(objects.count)
+    print(objects.count)
     # print(objects)
     # print(objects.objects[0].id)
     for i in range(objects.count):

@@ -87,6 +87,10 @@ class DatabaseLogic:
             raise NotFoundError(
                 f"Item {item_id} does not exist in Collection {collection_id}"
             )
+        except pyle38.errors.Tile38KeyNotFoundError:
+            raise NotFoundError(
+                f"Item {item_id} does not exist in Collection {collection_id}"
+            )  
         response = json.loads(response.value)
         item = json.loads(response["item"])
         return item
@@ -128,27 +132,15 @@ class DatabaseLogic:
     async def apply_bbox_filter(self, collection_id: str, bbox: List):
     # def apply_bbox_filter(search: Search, bbox: List):
         """Database logic to search on bounding box."""
-        objects = await self.client.within("items").bounds(bbox[0], bbox[1], bbox[2], bbox[3]).asObjects()
+        objects = await self.client.intersects("test").bounds(bbox[0],bbox[1],bbox[2],bbox[3]).asObjects()
+        count = objects.count
         items = []
         for i in range(objects.count):
-            item = json.loads(objects.objects[i].object)
-            items.append(json.loads(item["item"]))
-        return items
-    #     return search.filter(
-    #         Q(
-    #             {
-    #                 "geo_shape": {
-    #                     "geometry": {
-    #                         "shape": {
-    #                             "type": "polygon",
-    #                             "coordinates": bbox2polygon(*bbox),
-    #                         },
-    #                         "relation": "intersects",
-    #                     }
-    #                 }
-    #             }
-    #         )
-    #     )
+            item_result = objects.objects[i].object
+            item_result["id"] = objects.objects[i].id
+            items.append(json.loads(item_result["item"]))
+
+        return items, count
 
     # @staticmethod
     # def apply_intersects_filter(
@@ -199,8 +191,8 @@ class DatabaseLogic:
     #     else:
     #         return None
     async def execute_search(self, search: dict):
-        items = await self.apply_bbox_filter(collection_id="test-collection", bbox=search.bbox)
-        return items, 100, None
+        items, count = await self.apply_bbox_filter(collection_id="test-collection", bbox=search.bbox)
+        return items, count, None
 
     # async def execute_search(
     #     self,
@@ -273,6 +265,8 @@ class DatabaseLogic:
             raise ConflictError(f"Item {item['id']} in collection {item['collection']} already exists")
         except pyle38.errors.Tile38IdNotFoundError:
             pass
+        except pyle38.errors.Tile38KeyNotFoundError:
+            pass
 
         return self.item_serializer.stac_to_db(item, base_url)
 
@@ -300,6 +294,8 @@ class DatabaseLogic:
             await self.client.jget("stac_items", db_id)
             raise ConflictError(f"Item {item['id']} in collection {item['collection']} already exists")
         except pyle38.errors.Tile38IdNotFoundError:
+            pass
+        except pyle38.errors.Tile38KeyNotFoundError:
             pass
 
         await self.client.set("stac_items", db_id).bounds(item["bbox"][0], item["bbox"][1], item["bbox"][2], item["bbox"][3]).exec()
