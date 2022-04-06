@@ -122,7 +122,7 @@ async def ctx(txn_client: TransactionsClient, test_collection, test_item):
 
     try:
         await create_collection(txn_client, test_collection)
-    except:
+    except Exception:
         pass
     await create_item(txn_client, test_item)
 

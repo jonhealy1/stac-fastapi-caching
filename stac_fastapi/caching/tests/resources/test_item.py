@@ -271,6 +271,7 @@ async def test_item_search_spatial_query_post(app_client, ctx):
     resp_json = resp.json()
     assert resp_json["features"][0]["id"] == test_item["id"]
 
+
 @pytest.mark.skip(reason="Date query not implemented")
 async def test_item_search_temporal_query_post(app_client, ctx):
     """Test POST search with single-tailed spatio-temporal query (core)"""
@@ -289,6 +290,7 @@ async def test_item_search_temporal_query_post(app_client, ctx):
     resp_json = resp.json()
     assert resp_json["features"][0]["id"] == test_item["id"]
 
+
 @pytest.mark.skip(reason="Date query not implemented")
 async def test_item_search_temporal_window_post(app_client, load_test_data, ctx):
     """Test POST search with two-tailed spatio-temporal query (core)"""
@@ -306,6 +308,7 @@ async def test_item_search_temporal_window_post(app_client, load_test_data, ctx)
     resp = await app_client.post("/search", json=params)
     resp_json = resp.json()
     assert resp_json["features"][0]["id"] == test_item["id"]
+
 
 @pytest.mark.skip(reason="Date query not implemented")
 async def test_item_search_temporal_open_window(app_client, ctx):
@@ -390,6 +393,7 @@ async def test_item_search_get_without_collections(app_client, ctx):
     resp = await app_client.get("/search", params=params)
     assert resp.status_code == 200
 
+
 @pytest.mark.skip(reason="Date query not implemented")
 async def test_item_search_temporal_window_get(app_client, ctx):
     """Test GET search with spatio-temporal query (core)"""
@@ -437,6 +441,7 @@ async def test_item_search_post_without_collection(app_client, ctx):
     }
     resp = await app_client.post("/search", json=params)
     assert resp.status_code == 200
+
 
 @pytest.mark.skip(reason="Query not implemented")
 async def test_item_search_properties_es(app_client, ctx):
@@ -494,6 +499,7 @@ async def test_get_missing_item_collection(app_client):
     resp = await app_client.get("/collections/invalid-collection/items")
     assert resp.status_code == 200
 
+
 @pytest.mark.skip(reason="Pagination extension not implemented")
 async def test_pagination_item_collection(app_client, ctx, txn_client):
     """Test item collection pagination links (paging extension)"""
@@ -530,6 +536,7 @@ async def test_pagination_item_collection(app_client, ctx, txn_client):
     # Confirm we have paginated through all items
     assert not set(item_ids) - set(ids)
 
+
 @pytest.mark.skip(reason="Pagination extension not implemented")
 async def test_pagination_post(app_client, ctx, txn_client):
     """Test POST pagination (paging extension)"""
@@ -564,6 +571,7 @@ async def test_pagination_post(app_client, ctx, txn_client):
 
     # Confirm we have paginated through all items
     assert not set(item_ids) - set(ids)
+
 
 @pytest.mark.skip(reason="Pagination extension not implemented")
 async def test_pagination_token_idempotent(app_client, ctx, txn_client):

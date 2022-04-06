@@ -422,4 +422,3 @@ class DatabaseLogic:
     async def delete_collections(self) -> None:
         """Danger. this is only for tests."""
         await self.client.drop(COLLECTIONS_INDEX)
-  
