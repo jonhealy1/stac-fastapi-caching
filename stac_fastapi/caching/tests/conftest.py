@@ -18,6 +18,7 @@ from stac_fastapi.caching.core import (
 )
 from stac_fastapi.caching.database_logic import COLLECTIONS_INDEX, ITEMS_INDEX
 from stac_fastapi.caching.extensions import QueryExtension
+
 # from stac_fastapi.caching.indexes import IndexesClient
 from stac_fastapi.extensions.core import (  # FieldsExtension,
     ContextExtension,
