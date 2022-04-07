@@ -177,7 +177,7 @@ class DatabaseLogic:
             "type": "Polygon",
             "coordinates": bbox2polygon(bbox[0], bbox[1], bbox[2], bbox[3]),
         }
-        objects = await self.client.intersects("stac_items").object(geom).asObjects()
+        objects = await self.client.intersects("stac_items").object(geom).limit(limit).asObjects()
         count = objects.count
         items = []
         if count < limit:

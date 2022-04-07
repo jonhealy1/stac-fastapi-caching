@@ -1,5 +1,4 @@
 """Item crud client."""
-from gc import collect
 import json
 import logging
 import time
@@ -218,6 +217,7 @@ class CoreClient(AsyncBaseCoreClient):
     ) -> ItemCollection:
         """POST search catalog."""
         request: Request = kwargs["request"]
+        limit = search_request.limit
         base_url = str(request.base_url)
         items = []
         count = 0
@@ -232,7 +232,6 @@ class CoreClient(AsyncBaseCoreClient):
         #         search=search, datetime_search=datetime_search
         #     )
 
-        limit = search_request.limit
         if search_request.bbox:
             bbox = search_request.bbox
             if len(bbox) == 6:
