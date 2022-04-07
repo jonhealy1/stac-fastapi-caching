@@ -219,10 +219,14 @@ class CoreClient(AsyncBaseCoreClient):
     ) -> ItemCollection:
         """POST search catalog."""
         request: Request = kwargs["request"]
-        limit = search_request.limit
         base_url = str(request.base_url)
         items = []
         count = 0
+
+        if search_request.limit:
+            limit = search_request.limit
+        else:
+            limit = 10
 
         if search_request.ids:
             items = await self.database.get_items(
@@ -260,9 +264,6 @@ class CoreClient(AsyncBaseCoreClient):
         # sort = None
         # if search_request.sortby:
         #     sort = self.database.populate_sort(search_request.sortby)
-
-        # if search_request.limit:
-        #     limit = search_request.limit
 
         if search_request.collections:
             if len(items) > 0:

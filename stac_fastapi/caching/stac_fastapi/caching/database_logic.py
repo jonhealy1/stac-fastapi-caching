@@ -231,12 +231,14 @@ class DatabaseLogic:
             objects = (
                 await self.client.intersects("stac_items")
                 .object(new_intersects)
+                .limit(limit)
                 .asObjects()
             )
         elif intersects.type == "Polygon":
             objects = (
                 await self.client.intersects("stac_items")
                 .object(intersects)
+                .limit(limit)
                 .asObjects()
             )
         else:
