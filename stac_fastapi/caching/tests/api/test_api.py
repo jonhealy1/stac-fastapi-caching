@@ -75,7 +75,6 @@ async def test_app_search_response(app_client, ctx):
     assert resp_json.get("stac_extensions") is None
 
 
-@pytest.mark.skip(reason="Collection search not implemented")
 async def test_app_context_extension(app_client, ctx, txn_client):
     test_item = ctx.item
     test_item["id"] = "test-item-2"
@@ -140,17 +139,14 @@ async def test_app_query_extension_gte(app_client, ctx):
     assert len(resp.json()["features"]) == 1
 
 
-@pytest.mark.skip(reason="Query not implemented")
 async def test_app_query_extension_limit_lt0(app_client):
     assert (await app_client.post("/search", json={"limit": -1})).status_code == 400
 
 
-@pytest.mark.skip(reason="Query not implemented")
 async def test_app_query_extension_limit_gt10000(app_client):
     assert (await app_client.post("/search", json={"limit": 10001})).status_code == 400
 
 
-@pytest.mark.skip(reason="Query not implemented")
 async def test_app_query_extension_limit_10000(app_client):
     params = {"limit": 10000}
     resp = await app_client.post("/search", json=params)
