@@ -101,13 +101,13 @@ async def main():
 
     print(objects.objects[0].id)
 
-    response = await tile38.get('test', objects.objects[0].id).asObject()
+    response = await tile38.get("test", objects.objects[0].id).asObject()
     print("-----------------")
     object = json.loads(response.object["item"])
     print(object)
     print(type(object))
 
-    search = await tile38.search('test').match('test*').asStringObjects()
+    search = await tile38.search("test").match("test*").asStringObjects()
     print(search)
 
     # result = await tile38.get(item["collection"], item["id"]).asObject()

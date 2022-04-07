@@ -114,7 +114,7 @@ class DatabaseLogic:
         """Database logic to retrieve a list of collections."""
         collections = []
         for id in collection_ids:
-            collection = await self.client.jget('collections', id).asObject()
+            collection = await self.client.jget("collections", id).asObject()
             collection = json.loads(collection.object["collection"])
             collections.append(collection)
 
@@ -127,7 +127,7 @@ class DatabaseLogic:
             for id in item_ids:
                 db_id = mk_item_id(item_id=id, collection_id=collection_id)
                 try:
-                    item = await self.client.get('stac_items', db_id).asObject()
+                    item = await self.client.get("stac_items", db_id).asObject()
                     item = json.loads(item.object["item"])
                     items.append(item)
                 except Exception:
@@ -177,7 +177,12 @@ class DatabaseLogic:
             "type": "Polygon",
             "coordinates": bbox2polygon(bbox[0], bbox[1], bbox[2], bbox[3]),
         }
-        objects = await self.client.intersects("stac_items").object(geom).limit(limit).asObjects()
+        objects = (
+            await self.client.intersects("stac_items")
+            .object(geom)
+            .limit(limit)
+            .asObjects()
+        )
         count = objects.count
         items = []
         if count < limit:
@@ -289,6 +294,7 @@ class DatabaseLogic:
     def sync_prep_create_item(self, item: Item, base_url: str) -> Item:
         """Database logic for prepping an item for insertion."""
         pass
+
     # collection_id = item["collection"]
     # if not self.sync_client.exists(index=COLLECTIONS_INDEX, id=collection_id):
     #     raise NotFoundError(f"Collection {collection_id} does not exist")

@@ -74,6 +74,7 @@ async def test_app_search_response(app_client, ctx):
     assert resp_json.get("stac_version") is None
     assert resp_json.get("stac_extensions") is None
 
+
 @pytest.mark.skip(reason="Collection search not implemented")
 async def test_app_context_extension(app_client, ctx, txn_client):
     test_item = ctx.item
@@ -120,6 +121,7 @@ async def test_app_fields_extension(load_test_data, app_client, txn_client):
 
     txn_client.delete_item(item["id"], item["collection"])
 
+
 @pytest.mark.skip(reason="Query not implemented")
 async def test_app_query_extension_gt(app_client, ctx):
     params = {"query": {"proj:epsg": {"gt": ctx.item["properties"]["proj:epsg"]}}}
@@ -127,6 +129,7 @@ async def test_app_query_extension_gt(app_client, ctx):
     assert resp.status_code == 200
     resp_json = resp.json()
     assert len(resp_json["features"]) == 0
+
 
 @pytest.mark.skip(reason="Query not implemented")
 async def test_app_query_extension_gte(app_client, ctx):
@@ -136,19 +139,23 @@ async def test_app_query_extension_gte(app_client, ctx):
     assert resp.status_code == 200
     assert len(resp.json()["features"]) == 1
 
+
 @pytest.mark.skip(reason="Query not implemented")
 async def test_app_query_extension_limit_lt0(app_client):
     assert (await app_client.post("/search", json={"limit": -1})).status_code == 400
 
+
 @pytest.mark.skip(reason="Query not implemented")
 async def test_app_query_extension_limit_gt10000(app_client):
     assert (await app_client.post("/search", json={"limit": 10001})).status_code == 400
+
 
 @pytest.mark.skip(reason="Query not implemented")
 async def test_app_query_extension_limit_10000(app_client):
     params = {"limit": 10000}
     resp = await app_client.post("/search", json=params)
     assert resp.status_code == 200
+
 
 @pytest.mark.skip(reason="Sort extension not implemented")
 async def test_app_sort_extension(app_client, txn_client, ctx):
@@ -200,6 +207,7 @@ async def test_search_point_intersects(app_client, ctx):
     resp_json = resp.json()
     assert len(resp_json["features"]) == 1
 
+
 @pytest.mark.skip(reason="Date search not implemented")
 async def test_datetime_non_interval(app_client, ctx):
     dt_formats = [
@@ -226,12 +234,13 @@ async def test_bbox_3d(app_client, ctx):
     australia_bbox = [106.343365, -47.199523, 0.1, 168.218365, -19.437288, 0.1]
     params = {
         "bbox": australia_bbox,
-        #"collections": [ctx.item["collection"]],
+        # "collections": [ctx.item["collection"]],
     }
     resp = await app_client.post("/search", json=params)
     assert resp.status_code == 200
     resp_json = resp.json()
     assert len(resp_json["features"]) == 1
+
 
 @pytest.mark.skip(reason="Line String inttersects not implemented")
 async def test_search_line_string_intersects(app_client, ctx):

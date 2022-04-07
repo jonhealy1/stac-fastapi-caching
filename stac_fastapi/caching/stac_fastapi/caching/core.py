@@ -94,7 +94,9 @@ class CoreClient(AsyncBaseCoreClient):
         request: Request = kwargs["request"]
         base_url = str(kwargs["request"].base_url)
 
-        items, maybe_count, next_token = await self.database.get_item_collection(collection_id=collection_id)
+        items, maybe_count, next_token = await self.database.get_item_collection(
+            collection_id=collection_id
+        )
 
         items = [
             self.item_serializer.db_to_stac(item, base_url=base_url) for item in items
@@ -223,7 +225,9 @@ class CoreClient(AsyncBaseCoreClient):
         count = 0
 
         if search_request.ids and search_request.collections:
-            items = await self.database.get_items(item_ids=search_request.ids, collection_ids=search_request.collections)
+            items = await self.database.get_items(
+                item_ids=search_request.ids, collection_ids=search_request.collections
+            )
             count = len(items)
 
         # if search_request.datetime:
@@ -272,9 +276,11 @@ class CoreClient(AsyncBaseCoreClient):
             else:
                 items = []
                 for collection_id in search_request.collections:
-                    items_list, count, _ = await self.database.get_item_collection(collection_id=collection_id)
+                    items_list, count, _ = await self.database.get_item_collection(
+                        collection_id=collection_id
+                    )
                     items = items + items_list
-           
+
         items = [
             self.item_serializer.db_to_stac(item, base_url=base_url) for item in items
         ]
