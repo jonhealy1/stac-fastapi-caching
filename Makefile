@@ -47,7 +47,7 @@ test:
 
 .PHONY: run-database
 run-database:
-	docker-compose run --rm elasticsearch
+	docker-compose run --rm tile38
 
 .PHONY: pybase-install
 pybase-install:

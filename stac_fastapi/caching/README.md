@@ -1,3 +1,3 @@
 # Requirements
 
-The Elasticsearch backend requires **elasticsearch**.
+The Caching backend requires **tile38**.

@@ -9,4 +9,4 @@ Stac-fastapi built on Tile38 to support caching. This code is built on top of st
 
 ### Important
 
-This code is not operational yet
+This code is not production-ready. CRUD routes work with items and collections. Bbox queries should work, and point and polygon intersection. 
