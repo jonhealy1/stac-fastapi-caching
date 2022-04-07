@@ -312,8 +312,9 @@ class DatabaseLogic:
 
         return self.item_serializer.stac_to_db(item, base_url)
 
-    # def sync_prep_create_item(self, item: Item, base_url: str) -> Item:
-    #     """Database logic for prepping an item for insertion."""
+    def sync_prep_create_item(self, item: Item, base_url: str) -> Item:
+        """Database logic for prepping an item for insertion."""
+        pass
     # collection_id = item["collection"]
     # if not self.sync_client.exists(index=COLLECTIONS_INDEX, id=collection_id):
     #     raise NotFoundError(f"Collection {collection_id} does not exist")

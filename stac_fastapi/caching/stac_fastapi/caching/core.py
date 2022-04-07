@@ -1,6 +1,7 @@
 """Item crud client."""
 import json
 import logging
+import time
 from datetime import datetime as datetime_type
 from datetime import timezone
 from typing import List, Optional, Type, Union
@@ -252,7 +253,7 @@ class CoreClient(AsyncBaseCoreClient):
             if len(bbox) == 6:
                 bbox = [bbox[0], bbox[1], bbox[3], bbox[4]]
             items, count = await self.database.apply_bbox_filter(
-                collection_id="test-collection", bbox=search_request.bbox, limit=limit
+                collection_id="test-collection", bbox=bbox, limit=limit
             )
 
         #     search = self.database.apply_bbox_filter(search=search, bbox=bbox)
@@ -347,6 +348,7 @@ class TransactionsClient(AsyncBaseTransactionsClient):
         await self.database.check_collection_exists(collection_id=item["collection"])
         # todo: index instead of delete and create
         await self.delete_item(item_id=item["id"], collection_id=item["collection"])
+        time.sleep(1)
         await self.create_item(item=item, **kwargs)
 
         return ItemSerializer.db_to_stac(item, base_url)
@@ -382,6 +384,7 @@ class TransactionsClient(AsyncBaseTransactionsClient):
 
         await self.database.find_collection(collection_id=collection["id"])
         await self.delete_collection(collection["id"])
+        time.sleep(1)
         await self.create_collection(collection, **kwargs)
 
         return CollectionSerializer.db_to_stac(collection, base_url)
