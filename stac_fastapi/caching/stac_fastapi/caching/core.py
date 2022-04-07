@@ -95,14 +95,6 @@ class CoreClient(AsyncBaseCoreClient):
         request: Request = kwargs["request"]
         base_url = str(kwargs["request"].base_url)
 
-        # items, maybe_count, next_token = await self.database.execute_search(
-        #     search=self.database.apply_collections_filter(
-        #         self.database.make_search(), [collection_id]
-        #     ),
-        #     limit=limit,
-        #     token=token,
-        #     sort=None,
-        # )
         items, maybe_count, next_token = await self.database.get_item_collection(collection_id=collection_id)
 
         items = [
