@@ -224,9 +224,9 @@ class CoreClient(AsyncBaseCoreClient):
         items = []
         count = 0
 
-        if search_request.ids and search_request.collections:
+        if search_request.ids:
             items = await self.database.get_items(
-                item_ids=search_request.ids, collection_ids=search_request.collections
+                item_ids=search_request.ids
             )
             count = len(items)
 
@@ -264,7 +264,7 @@ class CoreClient(AsyncBaseCoreClient):
         # if search_request.limit:
         #     limit = search_request.limit
 
-        if search_request.collections and not search_request.ids:
+        if search_request.collections:
             if len(items) > 0:
                 items_copy = items
                 items = []

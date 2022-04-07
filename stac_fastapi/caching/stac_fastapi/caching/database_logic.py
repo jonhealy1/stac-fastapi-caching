@@ -80,6 +80,13 @@ class DatabaseLogic:
             collections.append(json.loads(collection["collection"]))
         return collections
 
+    async def get_all_collection_ids(self) -> List[str]:
+        collections = await self.get_all_collections()
+        collection_ids = []
+        for collection in collections:
+            collection_ids.append(collection["id"])
+        return collection_ids
+
     async def get_item_collection(self, collection_id: str) -> List[Dict[str, Any]]:
         """Database logic to retrieve a list of all items in a collection."""
         objects = await self.client.scan("stac_items").asObjects()
@@ -120,9 +127,10 @@ class DatabaseLogic:
 
         return collections
 
-    async def get_items(self, item_ids: List[str], collection_ids: List[str]) -> Dict:
+    async def get_items(self, item_ids: List[str]) -> Dict:
         """Database logic to retrieve a list of items."""
         items = []
+        collection_ids = await self.get_all_collection_ids()
         for collection_id in collection_ids:
             for id in item_ids:
                 db_id = mk_item_id(item_id=id, collection_id=collection_id)
