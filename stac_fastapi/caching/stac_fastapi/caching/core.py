@@ -1,4 +1,5 @@
 """Item crud client."""
+from gc import collect
 import json
 import logging
 import time
@@ -226,18 +227,12 @@ class CoreClient(AsyncBaseCoreClient):
         """POST search catalog."""
         request: Request = kwargs["request"]
         base_url = str(request.base_url)
+        items = []
+        count = 0
 
-        # search = self.database.make_search()
-
-        # if search_request.ids:
-        #     search = self.database.apply_ids_filter(
-        #         search=search, item_ids=search_request.ids
-        #     )
-
-        # if search_request.collections:
-        #     search = self.database.apply_collections_filter(
-        #         search=search, collection_ids=search_request.collections
-        #     )
+        if search_request.ids and search_request.collections:
+            items = await self.database.get_items(item_ids=search_request.ids, collection_ids=search_request.collections)
+            count = len(items)
 
         # if search_request.datetime:
         #     datetime_search = self._return_date(search_request.datetime)
@@ -245,8 +240,6 @@ class CoreClient(AsyncBaseCoreClient):
         #         search=search, datetime_search=datetime_search
         #     )
 
-        items = []
-        count = 10
         limit = search_request.limit
         if search_request.bbox:
             bbox = search_request.bbox
@@ -255,8 +248,6 @@ class CoreClient(AsyncBaseCoreClient):
             items, count = await self.database.apply_bbox_filter(
                 collection_id="test-collection", bbox=bbox, limit=limit
             )
-
-        #     search = self.database.apply_bbox_filter(search=search, bbox=bbox)
 
         if search_request.intersects:
             items, count = await self.database.apply_intersects_filter(
@@ -284,7 +275,15 @@ class CoreClient(AsyncBaseCoreClient):
         #     # token=search_request.token,  # type: ignore
         #     # sort=sort,
         # )
-
+        if search_request.collections and not search_request.ids:
+            items_copy = items
+            items = []
+            count = 0
+            for item in items_copy:
+                if item["collection"] in search_request.collections:
+                    items.append(item)
+                    count += 1
+           
         items = [
             self.item_serializer.db_to_stac(item, base_url=base_url) for item in items
         ]

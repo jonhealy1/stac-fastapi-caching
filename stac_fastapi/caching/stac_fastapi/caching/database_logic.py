@@ -108,6 +108,31 @@ class DatabaseLogic:
         item = json.loads(response["item"])
         return item
 
+    async def get_collections(self, collection_ids: List[str]) -> Dict:
+        """Database logic to retrieve a list of collections."""
+        collections = []
+        for id in collection_ids:
+            collection = await self.client.jget('collections', id).asObject()
+            collection = json.loads(collection.object["collection"])
+            collections.append(collection)
+
+        return collections
+
+    async def get_items(self, item_ids: List[str], collection_ids: List[str]) -> Dict:
+        """Database logic to retrieve a list of items."""
+        items = []
+        for collection_id in collection_ids:
+            for id in item_ids:
+                db_id = mk_item_id(item_id=id, collection_id=collection_id)
+                try:
+                    item = await self.client.get('stac_items', db_id).asObject()
+                    item = json.loads(item.object["item"])
+                    items.append(item)
+                except Exception:
+                    pass
+
+        return items
+
     @staticmethod
     def make_search():
         """Database logic to create a Search instance."""
