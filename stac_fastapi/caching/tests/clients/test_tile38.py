@@ -127,6 +127,10 @@ async def test_create_item_already_exists(ctx, txn_client):
 
 
 async def test_update_item(ctx, core_client, txn_client):
+    try:
+        await txn_client.create_collection(ctx.collection, request=MockRequest)
+    except Exception:
+        pass
     ctx.item["properties"]["foo"] = "bar"
     await txn_client.update_item(ctx.item, request=MockRequest)
 
