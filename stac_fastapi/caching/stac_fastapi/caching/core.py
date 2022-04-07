@@ -103,7 +103,7 @@ class CoreClient(AsyncBaseCoreClient):
         #     token=token,
         #     sort=None,
         # )
-        items, maybe_count, next_token = await self.database.get_item_collection()
+        items, maybe_count, next_token = await self.database.get_item_collection(collection_id=collection_id)
 
         items = [
             self.item_serializer.db_to_stac(item, base_url=base_url) for item in items
@@ -276,13 +276,16 @@ class CoreClient(AsyncBaseCoreClient):
         #     # sort=sort,
         # )
         if search_request.collections and not search_request.ids:
-            items_copy = items
-            items = []
-            count = 0
-            for item in items_copy:
-                if item["collection"] in search_request.collections:
-                    items.append(item)
-                    count += 1
+            if len(items) == 0:
+                items_copy = items
+                items = []
+                count = 0
+                for item in items_copy:
+                    if item["collection"] in search_request.collections:
+                        items.append(item)
+                        count += 1
+            else:
+                self.database.get_item_collection()
            
         items = [
             self.item_serializer.db_to_stac(item, base_url=base_url) for item in items

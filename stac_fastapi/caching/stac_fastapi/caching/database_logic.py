@@ -80,7 +80,7 @@ class DatabaseLogic:
             collections.append(json.loads(collection["collection"]))
         return collections
 
-    async def get_item_collection(self) -> List[Dict[str, Any]]:
+    async def get_item_collection(self, collection_id: str) -> List[Dict[str, Any]]:
         """Database logic to retrieve a list of all items in a collection."""
         objects = await self.client.scan("stac_items").asObjects()
         items = []
@@ -88,8 +88,10 @@ class DatabaseLogic:
         for i in range(matched):
             # item = json.loads(objects.objects[i].object)
             item = objects.objects[i].object
-            items.append(json.loads(item["item"]))
-        return items, matched, None
+            item = json.loads(item["item"])
+            if item["collection"] == collection_id:
+                items.append(item)
+        return items, len(items), None
 
     async def get_one_item(self, collection_id: str, item_id: str) -> Dict:
         """Database logic to retrieve a single item."""
