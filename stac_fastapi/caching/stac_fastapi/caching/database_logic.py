@@ -84,11 +84,12 @@ class DatabaseLogic:
         """Database logic to retrieve a list of all items in a collection."""
         objects = await self.client.scan("stac_items").asObjects()
         items = []
-        for i in range(objects.count):
+        matched = objects.count
+        for i in range(matched):
             # item = json.loads(objects.objects[i].object)
             item = objects.objects[i].object
             items.append(json.loads(item["item"]))
-        return items, 10, None
+        return items, matched, None
 
     async def get_one_item(self, collection_id: str, item_id: str) -> Dict:
         """Database logic to retrieve a single item."""
