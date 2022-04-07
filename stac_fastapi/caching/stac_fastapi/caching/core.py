@@ -261,14 +261,8 @@ class CoreClient(AsyncBaseCoreClient):
         # if search_request.limit:
         #     limit = search_request.limit
 
-        # items, maybe_count, next_token = await self.database.execute_search(
-        #     search=search_request,
-        #     # limit=limit,
-        #     # token=search_request.token,  # type: ignore
-        #     # sort=sort,
-        # )
         if search_request.collections and not search_request.ids:
-            if len(items) == 0:
+            if len(items) > 0:
                 items_copy = items
                 items = []
                 count = 0
@@ -277,7 +271,10 @@ class CoreClient(AsyncBaseCoreClient):
                         items.append(item)
                         count += 1
             else:
-                self.database.get_item_collection()
+                items = []
+                for collection_id in search_request.collections:
+                    items_list, count, _ = await self.database.get_item_collection(collection_id=collection_id)
+                    items = items + items_list
            
         items = [
             self.item_serializer.db_to_stac(item, base_url=base_url) for item in items

@@ -256,59 +256,6 @@ class DatabaseLogic:
     #         return {s.field: {"order": s.direction} for s in sortby}
     #     else:
     #         return None
-    # async def execute_search(self, search: dict):
-    #     items, count = await self.apply_bbox_filter(collection_id="test-collection", bbox=search.bbox)
-    #     return items, count, None
-
-    # async def execute_search(
-    #     self,
-    #     search: Search,
-    #     limit: int,
-    #     token: Optional[str],
-    #     sort: Optional[Dict[str, Dict[str, str]]],
-    # ) -> Tuple[Iterable[Dict[str, Any]], Optional[int], Optional[str]]:
-    #     """Database logic to execute search with limit."""
-    #     search_after = None
-    #     if token:
-    #         search_after = urlsafe_b64decode(token.encode()).decode().split(",")
-
-    #     query = search.query.to_dict() if search.query else None
-
-    #     search_task = asyncio.create_task(
-    #         self.client.search(
-    #             index=ITEMS_INDEX,
-    #             query=query,
-    #             sort=sort or DEFAULT_SORT,
-    #             search_after=search_after,
-    #             size=limit,
-    #         )
-    #     )
-
-    #     count_task = asyncio.create_task(
-    #         self.client.count(index=ITEMS_INDEX, body=search.to_dict(count=True))
-    #     )
-
-    #     es_response = await search_task
-
-    #     hits = es_response["hits"]["hits"]
-    #     items = (hit["_source"] for hit in hits)
-
-    #     next_token = None
-    #     if hits and (sort_array := hits[-1].get("sort")):
-    #         next_token = urlsafe_b64encode(
-    #             ",".join([str(x) for x in sort_array]).encode()
-    #         ).decode()
-
-    #     # (1) count should not block returning results, so don't wait for it to be done
-    #     # (2) don't cancel the task so that it will populate the ES cache for subsequent counts
-    #     maybe_count = None
-    #     if count_task.done():
-    #         try:
-    #             maybe_count = count_task.result().get("count")
-    #         except Exception as e:  # type: ignore
-    #             logger.error(f"Count task failed: {e}")
-
-    #     return items, maybe_count, next_token
 
     """ TRANSACTION LOGIC """
 
